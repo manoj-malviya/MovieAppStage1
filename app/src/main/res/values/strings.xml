@@ -16,4 +16,6 @@
         <item>vote_count.desc</item>
     </string-array>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="label_rating">Rating: </string>
+    <string name="label_relase">Released On: </string>
 </resources>

@@ -54,9 +54,9 @@ public class DetailActivityFragment extends Fragment {
 
         nameView.setText(movie.name);
         overviewView.setText(movie.overview);
-        releaseDateView.setText(movie.releaseDate);
-        ratingView.setText(movie.rating);
-        Picasso.with(getActivity()).load("http://image.tmdb.org/t/p/w500/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg").into(imageView);
+        releaseDateView.setText(getString(R.string.label_relase) + movie.releaseDate);
+        ratingView.setText(getString(R.string.label_rating) + movie.rating);
+        Picasso.with(getActivity()).load(movie.image).into(imageView);
 
 
         return view;

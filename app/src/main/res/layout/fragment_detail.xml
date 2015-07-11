@@ -1,0 +1,43 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+
+    tools:context="com.girnarsoft.android.movieapp.DetailActivityFragment"
+    android:baselineAligned="true"
+    android:clickable="false">
+
+    <ImageView
+        android:id="@+id/detail_image"
+        android:layout_width="188dp"
+        android:layout_height="256dp"
+        android:scaleType="center"
+        android:cropToPadding="false"
+        android:layout_gravity="center"
+        android:src="@drawable/test"
+        />
+    <TextView
+        android:id="@+id/detail_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="The movie name"/>
+    <TextView
+        android:id="@+id/detail_overview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="The image’s larger dimension (height here) should be scaled to match ImageView's bounding area (250dp). The aspect ratio should be respected and the image must stay inside the ImageView area. Red lines illustrate the biggest issue original question author had: ImageView doesn’t match new dimensions of the image."/>
+    <TextView
+        android:id="@+id/detail_rating"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="9.6"/>
+    <TextView
+        android:id="@+id/detail_release_date"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="2015-06-09"/>
+
+</LinearLayout>

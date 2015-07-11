@@ -5,9 +5,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.girnarsoft.android.movieapp.R;
@@ -15,23 +17,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MovieAdapter extends BaseAdapter {
+public class MovieAdapter extends ArrayAdapter<Movie> {
     private Context mContext;
-    private List<Movie> movies;
     private int gridItemLayout;
 
     public MovieAdapter(Context c, int itemLayout, List<Movie> moviesList) {
+        super(c, itemLayout, moviesList);
         mContext = c;
         gridItemLayout = itemLayout;
-        movies = moviesList;
-    }
-
-    public int getCount() {
-        return movies.size();
-    }
-
-    public Movie getItem(int position) {
-        return movies.get(position);
     }
 
     public long getItemId(int position) {

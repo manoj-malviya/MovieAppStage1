@@ -22,6 +22,7 @@ import com.girnarsoft.android.tmdb.Movie;
 import com.girnarsoft.android.tmdb.MovieAdapter;
 import com.girnarsoft.android.tmdb.TMDBService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -75,6 +76,9 @@ public class MainActivity extends ActionBarActivity {
 
             movieGrid = (GridView) rootView.findViewById(R.id.movie_grid);
 
+            adapter = new MovieAdapter(getActivity(), R.layout.movie_grid_item, new ArrayList<Movie>());
+            movieGrid.setAdapter(adapter);
+
             movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -126,9 +130,10 @@ public class MainActivity extends ActionBarActivity {
             @Override
             protected void onPostExecute(List<Movie> movies) {
 
-                adapter = new MovieAdapter(getActivity(), R.layout.movie_grid_item, movies);
+                //adapter = new MovieAdapter(getActivity(), R.layout.movie_grid_item, movies);
 
-                movieGrid.setAdapter(adapter);
+                adapter.addAll(movies);
+                adapter.notifyDataSetChanged();
 
                 dialog.dismiss();
             }

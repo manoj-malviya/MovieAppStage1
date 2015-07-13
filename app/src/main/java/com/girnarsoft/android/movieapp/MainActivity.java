@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.girnarsoft.android.tmdb.AsyncTaskListner;
 import com.girnarsoft.android.tmdb.Constants;
 import com.girnarsoft.android.tmdb.Movie;
 import com.girnarsoft.android.tmdb.MovieAdapter;
@@ -59,84 +60,5 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public static class MainActivityFragment extends Fragment {
-
-        private MovieAdapter adapter;
-        private GridView movieGrid;
-
-        public MainActivityFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
-
-            movieGrid = (GridView) rootView.findViewById(R.id.movie_grid);
-
-            adapter = new MovieAdapter(getActivity(), R.layout.movie_grid_item, new ArrayList<Movie>());
-            movieGrid.setAdapter(adapter);
-
-            movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Movie movie = (Movie)movieGrid.getAdapter().getItem(position);
-                    Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                    detailIntent.setAction(Intent.ACTION_SEND);
-
-                    detailIntent.putExtra(Constants.MOVIE_ID, movie.id);
-                    detailIntent.putExtra(Constants.MOVIE_NAME, movie.name);
-                    detailIntent.putExtra(Constants.MOVIE_IMAGE, movie.image);
-                    detailIntent.putExtra(Constants.MOVIE_OVERVIEW, movie.overview);
-                    detailIntent.putExtra(Constants.MOVIE_RELEASE_DATE, movie.releaseDate);
-                    detailIntent.putExtra(Constants.MOVIE_RATING, movie.rating);
-
-                    if(detailIntent.resolveActivity(getActivity().getPackageManager()) != null){
-                        startActivity(detailIntent);
-                    }
-                }
-            });
-
-            return rootView;
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-            String sortOrder = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
-
-            new FetchMovieTask().execute(sortOrder);
-        }
-
-        public class FetchMovieTask extends AsyncTask<String, Void, List<Movie>>
-        {
-            private ProgressDialog dialog;
-
-            @Override
-            protected void onPreExecute() {
-                dialog = ProgressDialog.show(getActivity(), null, "Loading...");
-            }
-
-            @Override
-            protected List<Movie> doInBackground(String... params) {
-                String sortOrder = params[0];
-                return TMDBService.getInstance().getMovies(sortOrder);
-            }
-
-            @Override
-            protected void onPostExecute(List<Movie> movies) {
-
-                //adapter = new MovieAdapter(getActivity(), R.layout.movie_grid_item, movies);
-
-                adapter.addAll(movies);
-                adapter.notifyDataSetChanged();
-
-                dialog.dismiss();
-            }
-        }
     }
 }

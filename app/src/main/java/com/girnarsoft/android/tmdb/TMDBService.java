@@ -45,8 +45,8 @@ public class TMDBService {
         return instance;
     }
 
-    public List<Movie> getMovies(String sort) {
-        List<Movie> movies = new ArrayList<>();
+    public ArrayList<Movie> getMovies(String sort) {
+        ArrayList<Movie> movies = new ArrayList<>();
 
         Uri endPoint = Uri.parse(baseUrl).buildUpon()
                 .appendEncodedPath("discover/movie")
@@ -101,9 +101,9 @@ public class TMDBService {
         return movie;
     }
 
-    private List<Movie> getMovieDataFromJson(String movieDataString) throws JSONException {
+    private ArrayList<Movie> getMovieDataFromJson(String movieDataString) throws JSONException {
 
-        List<Movie> movies = new ArrayList<Movie>();
+        ArrayList<Movie> movies = new ArrayList<Movie>();
 
         JSONObject movieJson = new JSONObject(movieDataString);
         JSONArray movieArray = movieJson.getJSONArray(RESULTS);

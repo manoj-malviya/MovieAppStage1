@@ -53,7 +53,6 @@ public class MainActivity extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent settingIntent = new Intent(this, SettingsActivity.class);
-            settingIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             if(settingIntent.resolveActivity(getPackageManager()) != null){
                 startActivity(settingIntent);

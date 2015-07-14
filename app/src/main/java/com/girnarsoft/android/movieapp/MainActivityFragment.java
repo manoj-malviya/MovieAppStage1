@@ -154,7 +154,7 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         @Override
         protected ArrayList<Movie> doInBackground(String... params){
             String sortOrder = params[0];
-            try{Thread.sleep(10000);}catch (Exception e) {}
+            //try{Thread.sleep(10000);}catch (Exception e) {}
             return TMDBService.getInstance().getMovies(sortOrder);
         }
 

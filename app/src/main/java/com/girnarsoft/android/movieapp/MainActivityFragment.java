@@ -23,7 +23,7 @@ import com.girnarsoft.android.tmdb.TMDBService;
 
 import java.util.ArrayList;
 
-public class MainActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Movie>> {
+public class MainActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Movie>>, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final String KEY = "key";
 
@@ -76,6 +76,8 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
                 }
             }
         });
+
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
 
         return rootView;
     }
@@ -138,6 +140,11 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
             new FetchMovieTask(this).execute(sortOrder);
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        retrieveMovies();
     }
 
     public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>>

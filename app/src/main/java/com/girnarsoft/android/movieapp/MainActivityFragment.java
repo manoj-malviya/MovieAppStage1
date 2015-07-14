@@ -101,14 +101,8 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY, movies);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if(movies == null) {
-            retrieveMovies();
+        if(movies != null && movies.size()>0) {
+            outState.putParcelableArrayList(KEY, movies);
         }
     }
 

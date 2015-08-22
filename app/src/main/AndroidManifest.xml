@@ -34,6 +34,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.girnarsoft.android.movieapp.MainActivity" />
         </activity>
+        <provider
+            android:authorities="com.girnarsoft.android.movieapp"
+            android:name="com.girnarsoft.android.data.MovieProvider" />
     </application>
 
 </manifest>

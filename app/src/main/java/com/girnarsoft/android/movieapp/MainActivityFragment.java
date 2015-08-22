@@ -1,9 +1,12 @@
 package com.girnarsoft.android.movieapp;
 
+import android.support.v4.app.LoaderManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.v4.content.Loader;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -13,19 +16,19 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.girnarsoft.android.movieapp.DetailActivity;
-import com.girnarsoft.android.movieapp.R;
+import com.girnarsoft.android.data.MovieContract;
 import com.girnarsoft.android.tmdb.AsyncTaskListner;
 import com.girnarsoft.android.tmdb.Constants;
 import com.girnarsoft.android.tmdb.Movie;
 import com.girnarsoft.android.tmdb.MovieAdapter;
-import com.girnarsoft.android.tmdb.TMDBService;
 
 import java.util.ArrayList;
 
-public class MainActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Movie>>, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Movie>>, SharedPreferences.OnSharedPreferenceChangeListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String KEY = "key";
+
+    private static final int MOVIE_LOADER = 111;
 
     private MovieAdapter adapter;
     private GridView movieGrid;
@@ -33,28 +36,38 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
     private ProgressDialog dialog;
     private boolean isTaskRunning = false;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
+    public static final String[] MOVIE_COLUMNS = {
+            MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+            MovieContract.MovieEntry.COLUMN_IMAGE
+    };
+
+    public static final int COL_ID = 0;
+    public static final int COL_MOVIE_ID = 1;
+    public static final int COL_IMAGE = 2;
+
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setRetainInstance(true);
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView =  inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         movies = new ArrayList<Movie>();
-        if(savedInstanceState == null || !savedInstanceState.containsKey(KEY)) {
-            retrieveMovies();
-        } else {
-            movies = savedInstanceState.getParcelableArrayList(KEY);
-        }
+//        if (savedInstanceState == null || !savedInstanceState.containsKey(KEY)) {
+//            retrieveMovies();
+//        } else {
+//            movies = savedInstanceState.getParcelableArrayList(KEY);
+//        }
 
         movieGrid = (GridView) rootView.findViewById(R.id.movie_grid);
 
-        adapter = new MovieAdapter(getActivity(), R.layout.movie_grid_item, movies);
+        adapter = new MovieAdapter(getActivity(), null, 0);
         movieGrid.setAdapter(adapter);
 
         movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -82,40 +95,37 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         return rootView;
     }
 
-    public void onTaskStarted(){
-        if(dialog == null) {
+    public void onTaskStarted() {
+        if (dialog == null) {
             dialog = ProgressDialog.show(getActivity(), "Loading", "Please wait a moment!");
         }
         isTaskRunning = true;
     }
 
     public void onTaskFinished(ArrayList<Movie> newMovies) {
-        adapter.clear();
-        adapter.addAll(newMovies);
-        movies = newMovies;
-        adapter.notifyDataSetChanged();
-        if(dialog != null) {
+        if (dialog != null) {
             dialog.dismiss();
         }
         isTaskRunning = false;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(movies != null && movies.size()>0) {
-            outState.putParcelableArrayList(KEY, movies);
-        }
-    }
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        if (movies != null && movies.size() > 0) {
+//            outState.putParcelableArrayList(KEY, movies);
+//        }
+//    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
         // If we are returning here from a screen orientation
         // and the AsyncTask is still working, re-create and display the
         // progress dialog.
         if (isTaskRunning) {
-            if(dialog == null)
+            if (dialog == null)
                 dialog = ProgressDialog.show(getActivity(), "Loading", "Please wait a moment!");
             else
                 dialog.show();
@@ -132,13 +142,13 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         super.onDetach();
     }
 
-    private void retrieveMovies(){
-        if(!isTaskRunning) {
+    private void retrieveMovies() {
+        if (!isTaskRunning) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
             String sortOrder = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
 
-            new FetchMovieTask(this).execute(sortOrder);
+            new FetchMovieTask(this.getActivity(), this).execute(sortOrder);
         }
     }
 
@@ -147,27 +157,25 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         retrieveMovies();
     }
 
-    public class FetchMovieTask extends AsyncTask<String, Void, ArrayList<Movie>>
-    {
-        AsyncTaskListner<ArrayList<Movie>> mlistner;
-        public FetchMovieTask(AsyncTaskListner<ArrayList<Movie>> listner){
-            this.mlistner = listner;
-        }
-        @Override
-        protected void onPreExecute() {
-            mlistner.onTaskStarted();
-        }
+    //Loader callbacks
 
-        @Override
-        protected ArrayList<Movie> doInBackground(String... params){
-            String sortOrder = params[0];
-            //try{Thread.sleep(10000);}catch (Exception e) {}
-            return TMDBService.getInstance().getMovies(sortOrder);
-        }
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        @Override
-        protected void onPostExecute(ArrayList<Movie> newMovies) {
-            mlistner.onTaskFinished(newMovies);
-        }
+        Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+
+        //return new Loader(getActivity(), uri, null, null, null, sortOrder);
+        return new android.support.v4.content.CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, null);
     }
+
+    @Override
+    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
+
 }

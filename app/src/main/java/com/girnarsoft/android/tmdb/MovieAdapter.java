@@ -2,62 +2,48 @@ package com.girnarsoft.android.tmdb;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.girnarsoft.android.movieapp.MainActivityFragment;
 import com.girnarsoft.android.movieapp.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MovieAdapter extends ArrayAdapter<Movie> {
-    private Context mContext;
-    private int gridItemLayout;
+public class MovieAdapter extends CursorAdapter {
 
-    public MovieAdapter(Context c, int itemLayout, List<Movie> moviesList) {
-        super(c, itemLayout, moviesList);
-        mContext = c;
-        gridItemLayout = itemLayout;
+    public MovieAdapter(Context context, Cursor cursor, int flags){
+        super(context, cursor, flags);
     }
 
-    public long getItemId(int position) {
-        return 0;
+    @Override
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+        View view = LayoutInflater.from(context).inflate(R.layout.movie_grid_item, parent, false);
+        ViewHolder holder = new ViewHolder();
+        holder.image = (ImageView) view.findViewById(R.id.movie_grid_image);
+
+        view.setTag(holder);
+
+        return view;
     }
 
-    // create a new ImageView for each item referenced by the Adapter
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View row = convertView;
+    @Override
+    public void bindView(View view, Context context, Cursor cursor) {
+        ViewHolder holder = (ViewHolder) view.getTag();
 
-        ViewHolder holder;
+        String image = cursor.getString(MainActivityFragment.COL_IMAGE);
 
-        if (row == null) {
-            LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-            row = inflater.inflate(gridItemLayout, parent, false);
-
-            holder = new ViewHolder();
-            holder.image = (ImageView) row.findViewById(R.id.movie_grid_image);
-            //holder.imageTitle = (TextView) row.findViewById(R.id.movie_grid_text);
-
-            row.setTag(holder);
-
-        } else {
-            holder = (ViewHolder) row.getTag();
-        }
-
-        Movie movie = getItem(position);
-
-        //holder.imageTitle.setText(movie.name);
-
-        Picasso.with(mContext).load(movie.image).into(holder.image);
-
-        return row;
+        Picasso.with(context).load(image).into(holder.image);
     }
 
     static class ViewHolder {

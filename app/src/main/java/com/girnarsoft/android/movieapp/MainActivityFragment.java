@@ -23,6 +23,7 @@ import com.girnarsoft.android.tmdb.Constants;
 import com.girnarsoft.android.tmdb.Movie;
 import com.girnarsoft.android.tmdb.MovieAdapter;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class MainActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Movie>>, SharedPreferences.OnSharedPreferenceChangeListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -152,8 +153,12 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
             String sortOrder = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
 
-            if(sortOrder == getString(R.string.pref_favourites)) {
-                getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+            if(sortOrder.equalsIgnoreCase(getString(R.string.pref_favourites))) {
+                if(getLoaderManager().getLoader(MOVIE_LOADER) == null){
+                    getLoaderManager().initLoader(MOVIE_LOADER, null, this).forceLoad();
+                }else{
+                    getLoaderManager().restartLoader(MOVIE_LOADER, null, this).forceLoad();
+                }
             } else {
                 new FetchMovieTask(this).execute(sortOrder);
             }
@@ -178,9 +183,10 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
         if (data != null) {
-            movies.clear();
+            ArrayList<Movie> movies = new ArrayList<>();
             while(data.moveToNext()) {
                 Movie movie = new Movie();
+                movie.id = data.getInt(COL_MOVIE_ID);
                 movie.name = data.getString(COL_NAME);
                 movie.image = data.getString(COL_IMAGE);
                 movie.overview = data.getString(COL_OVERVIEW);
@@ -188,6 +194,7 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
                 movie.releaseDate = data.getString(COL_RELEASEDATE);
                 movies.add(movie);
             }
+            onTaskFinished(movies);
         } else {
             Toast.makeText(getActivity(), "No Favourites available...", Toast.LENGTH_LONG).show();
         }

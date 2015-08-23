@@ -30,6 +30,13 @@ public class TMDBService {
     final String RELEASE_DATE = "release_date";
     final String USER_VOTE = "vote_average";
 
+    final String KEY = "key";
+    final String NAME = "name";
+    final String SITE = "site";
+
+    final String AUTHOR = "author";
+    final String CONTENT = "content";
+
     private final String apiKey = "590e44278fc96621798bcff64fd36990";
     private final String baseUrl = "http://api.themoviedb.org/3";
     private final String ERROR_TAG = TMDBService.class.getSimpleName();
@@ -63,6 +70,48 @@ public class TMDBService {
         }
 
         return movies;
+    }
+
+    public ArrayList<Video> getVideos(int movieId) {
+        ArrayList<Video> videos = new ArrayList<Video>();
+
+        Uri endPoint = Uri.parse(baseUrl).buildUpon()
+                .appendEncodedPath("movie")
+                .appendEncodedPath(String.valueOf(movieId))
+                .appendEncodedPath("videos")
+                .appendQueryParameter("api_key", apiKey)
+                .build();
+
+        String response = getResponse(endPoint.toString());
+
+        try {
+              videos = getVideosFromJson(response);
+        } catch (JSONException jsonEx) {
+            Log.e(ERROR_TAG, jsonEx.getMessage());
+        }
+
+        return videos;
+    }
+
+    public ArrayList<Review> getReviews(int movieId) {
+        ArrayList<Review> reviews = new ArrayList<Review>();
+
+        Uri endPoint = Uri.parse(baseUrl).buildUpon()
+                .appendEncodedPath("movie")
+                .appendEncodedPath(String.valueOf(movieId))
+                .appendEncodedPath("videos")
+                .appendQueryParameter("api_key", apiKey)
+                .build();
+
+        String response = getResponse(endPoint.toString());
+
+        try {
+            reviews = getReviewsFromJson(response);
+        } catch (JSONException jsonEx) {
+            Log.e(ERROR_TAG, jsonEx.getMessage());
+        }
+
+        return reviews;
     }
 
     public Movie getMovieDetail(String id){
@@ -124,6 +173,52 @@ public class TMDBService {
         }
 
         return movies;
+    }
+
+    private ArrayList<Review> getReviewsFromJson(String reviewDataString) throws JSONException {
+
+        ArrayList<Review> reviews = new ArrayList<Review>();
+
+        JSONObject reivewJson = new JSONObject(reviewDataString);
+        JSONArray reviewArray = reivewJson.getJSONArray(RESULTS);
+
+        for(int i=0; i<reviewArray.length(); i++) {
+            JSONObject reviewObject = reviewArray.getJSONObject(i);
+
+            Review review = new Review();
+
+            review.id = reviewObject.getString(ID);
+            review.author = reviewObject.getString(AUTHOR);
+            review.content = reviewObject.getString(CONTENT);
+
+            reviews.add(review);
+        }
+
+        return reviews;
+    }
+
+    private ArrayList<Video> getVideosFromJson(String videoDataString) throws JSONException {
+
+        ArrayList<Video> vidoes = new ArrayList<>();
+
+        JSONObject videoJson = new JSONObject(videoDataString);
+        JSONArray videoArray = videoJson.getJSONArray(RESULTS);
+
+        for(int i=0; i<videoArray.length(); i++) {
+            JSONObject movieObject = videoArray.getJSONObject(i);
+
+            Video video = new Video();
+
+            video.id = movieObject.getString(ID);
+            video.title = movieObject.getString(NAME);
+            video.key = movieObject.getString(KEY);
+            video.thumbnail = String.format("http://img.youtube.com/vi/%s/1.jpg", video.key);
+            video.site = movieObject.getString(SITE);
+
+            vidoes.add(video);
+        }
+
+        return vidoes;
     }
 
     private String getResponse(String endPoint) {

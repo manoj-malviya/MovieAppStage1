@@ -35,6 +35,16 @@
         android:id="@+id/detail_overview"
         style="@style/moviedetail_text"
         android:layout_below="@+id/detail_image"
+        android:layout_marginBottom="10dp"
         android:text="The image’s larger dimension (height here) should be scaled to match ImageView's bounding area (250dp). The aspect ratio should be respected and the image must stay inside the ImageView area. Red lines illustrate the biggest issue original question author had: ImageView doesn’t match new dimensions of the image."/>
+
+    <ListView
+        android:id="@+id/video_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/detail_overview"
+        android:divider="#b5b5b5"
+        android:scrollbars="none"
+        android:dividerHeight="1dp"></ListView>
 
 </RelativeLayout>

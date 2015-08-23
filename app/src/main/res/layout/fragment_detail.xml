@@ -18,6 +18,8 @@
         android:id="@+id/detail_title"
         style="@style/moviedetail_text"
         android:layout_toRightOf="@id/detail_image"
+        android:textSize="29dp"
+        android:textStyle="bold"
         android:text="The movie name"/>
     <TextView
         android:id="@+id/detail_rating"
@@ -38,13 +40,44 @@
         android:layout_marginBottom="10dp"
         android:text="The image’s larger dimension (height here) should be scaled to match ImageView's bounding area (250dp). The aspect ratio should be respected and the image must stay inside the ImageView area. Red lines illustrate the biggest issue original question author had: ImageView doesn’t match new dimensions of the image."/>
 
+    <TextView
+        android:id="@+id/detail_trailers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15dip"
+        android:textStyle="bold"
+        android:paddingLeft="10dp"
+        android:layout_below="@id/detail_overview"
+        android:visibility="gone"
+        android:text="Trailers"/>
+
     <ListView
         android:id="@+id/video_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/detail_overview"
+        android:layout_below="@id/detail_trailers"
         android:divider="#b5b5b5"
-        android:scrollbars="none"
+        android:paddingLeft="10dp"
         android:dividerHeight="1dp"></ListView>
+
+    <TextView
+        android:id="@+id/detail_reviews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15dip"
+        android:textStyle="bold"
+        android:paddingLeft="10dp"
+        android:layout_below="@id/video_list_view"
+        android:visibility="gone"
+        android:text="Reviews"/>
+
+    <ListView
+        android:id="@+id/review_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/detail_reviews"
+        android:divider="#b5b5b5"
+        android:paddingLeft="10dp"
+        android:dividerHeight="2dp"></ListView>
 
 </RelativeLayout>

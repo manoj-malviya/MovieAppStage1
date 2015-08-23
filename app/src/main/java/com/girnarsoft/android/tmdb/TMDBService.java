@@ -99,7 +99,7 @@ public class TMDBService {
         Uri endPoint = Uri.parse(baseUrl).buildUpon()
                 .appendEncodedPath("movie")
                 .appendEncodedPath(String.valueOf(movieId))
-                .appendEncodedPath("videos")
+                .appendEncodedPath("reviews")
                 .appendQueryParameter("api_key", apiKey)
                 .build();
 

@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import com.girnarsoft.android.tmdb.AsyncTaskListner;
 import com.girnarsoft.android.tmdb.Movie;
+import com.girnarsoft.android.tmdb.Review;
+import com.girnarsoft.android.tmdb.ReviewRowAdapter;
 import com.girnarsoft.android.tmdb.Video;
 import com.girnarsoft.android.tmdb.VideoAdapter;
 import com.squareup.picasso.Picasso;
@@ -25,7 +27,7 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Video>> {
+public class DetailActivityFragment extends Fragment implements AsyncTaskListner<DetailActivityFragment.MovieVideoReviews> {
 
     private static final int DETAIL_LOADER = 112;
 
@@ -45,15 +47,21 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
 //    private static final int COL_RATING = 5;
 //    private static final int COL_RELEASEDATE = 6;
 
+    private boolean isTaskRunning = false;
+
     private Movie mMovie;
     private ImageView mImageView;
     private TextView mNameView;
     private TextView mOverviewView;
     private TextView mReleaseDateView;
     private TextView mRatingView;
+    private TextView mTrailersView;
     private ListView mVideoListView;
+    private TextView mReviewView;
+    private ListView mReviewListView;
 
     private VideoAdapter mVideoAdapter;
+    private ReviewRowAdapter mReviewAdapter;
 
     public static DetailActivityFragment getInstance(Movie movie) {
         DetailActivityFragment detail = new DetailActivityFragment();
@@ -68,6 +76,12 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
 
     public Movie getMovieId() {
         return (Movie) getArguments().getParcelable("movie");
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override
@@ -88,7 +102,11 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
         mReleaseDateView = (TextView) view.findViewById(R.id.detail_release_date);
         mRatingView = (TextView) view.findViewById(R.id.detail_rating);
 
+        mTrailersView = (TextView) view.findViewById(R.id.detail_trailers);
         mVideoListView = (ListView) view.findViewById(R.id.video_list_view);
+
+        mReviewView = (TextView) view.findViewById(R.id.detail_reviews);
+        mReviewListView = (ListView) view.findViewById(R.id.review_list_view);
 
         getActivity().setTitle(mMovie.name);
         mNameView.setText(mMovie.name);
@@ -97,6 +115,9 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
         mRatingView.setText(getString(R.string.label_rating) + mMovie.rating);
         Picasso.with(getActivity()).load(mMovie.image).into(mImageView);
 
+        mReviewAdapter = new ReviewRowAdapter(getActivity(), R.layout.review_list_item, new ArrayList<Review>());
+        mReviewListView.setAdapter(mReviewAdapter);
+
         mVideoAdapter = new VideoAdapter(getActivity(), R.layout.video_list_item, new ArrayList<Video>());
         mVideoListView.setAdapter(mVideoAdapter);
 
@@ -104,18 +125,19 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Video video = mVideoAdapter.getItem(position);
-                try{
+                try {
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + video.key));
                     startActivity(intent);
-                }catch (ActivityNotFoundException ex){
-                    Intent intent=new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://www.youtube.com/watch?v="+video.key));
+                } catch (ActivityNotFoundException ex) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://www.youtube.com/watch?v=" + video.key));
                     startActivity(intent);
                 }
             }
         });
 
-        new FetchVideoTask(this).execute(String.valueOf(mMovie.id));
+        if(!isTaskRunning)
+            new FetchVideoTask(this).execute(String.valueOf(mMovie.id));
 
         return view;
     }
@@ -124,12 +146,35 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
 
 
     @Override
-    public void onTaskStarted() {}
+    public void onTaskStarted() {
+        isTaskRunning = true;
+    }
 
     @Override
-    public void onTaskFinished(ArrayList<Video> data) {
+    public void onTaskFinished(MovieVideoReviews data) {
         mVideoAdapter.clear();
-        mVideoAdapter.addAll(data);
+        mVideoAdapter.addAll(data.videos);
         mVideoAdapter.notifyDataSetChanged();
+        if(data.videos.size()>0) {
+            mTrailersView.setVisibility(View.VISIBLE);
+        } else {
+            mTrailersView.setVisibility(View.GONE);
+        }
+
+        mReviewAdapter.clear();
+        mReviewAdapter.addAll(data.reviews);
+        mReviewAdapter.notifyDataSetChanged();
+        if(data.reviews.size()>0) {
+            mReviewView.setVisibility(View.VISIBLE);
+        } else {
+            mReviewView.setVisibility(View.GONE);
+        }
+
+        isTaskRunning = false;
+    }
+
+    public static class MovieVideoReviews {
+        public ArrayList<Video> videos = new ArrayList<>();
+        public ArrayList<Review> reviews = new ArrayList<>();
     }
 }

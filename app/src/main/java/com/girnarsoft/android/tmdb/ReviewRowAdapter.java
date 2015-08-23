@@ -14,33 +14,33 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MovieAdapter extends ArrayAdapter<Movie> {
+public class ReviewRowAdapter extends ArrayAdapter<Review> {
     private Context mContext;
-    private int gridItemLayout;
+    private int mReviewLayout;
 
-    public MovieAdapter(Context c, int itemLayout, List<Movie> moviesList) {
+    public ReviewRowAdapter(Context c, int itemLayout, List<Review> moviesList) {
         super(c, itemLayout, moviesList);
         mContext = c;
-        gridItemLayout = itemLayout;
+        mReviewLayout = itemLayout;
     }
 
-    public long getItemId(int position) {
-        return 0;
-    }
+//    public long getItemId(int position) {
+//        return 0;
+//    }
 
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
 
-        ViewHolder holder;
+        final ViewHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-            row = inflater.inflate(gridItemLayout, parent, false);
+            row = inflater.inflate(mReviewLayout, parent, false);
 
             holder = new ViewHolder();
-            holder.image = (ImageView) row.findViewById(R.id.movie_grid_image);
-            //holder.imageTitle = (TextView) row.findViewById(R.id.movie_grid_text);
+            holder.author = (TextView) row.findViewById(R.id.review_author);
+            holder.content = (TextView) row.findViewById(R.id.review_content);
 
             row.setTag(holder);
 
@@ -48,17 +48,18 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
             holder = (ViewHolder) row.getTag();
         }
 
-        Movie movie = getItem(position);
+        row.setClickable(false);
 
-        //holder.imageTitle.setText(movie.name);
+        Review review = getItem(position);
 
-        Picasso.with(mContext).load(movie.image).into(holder.image);
+        holder.author.setText(review.author);
+        holder.content.setText(review.content);
 
         return row;
     }
 
     static class ViewHolder {
-        TextView imageTitle;
-        ImageView image;
+        TextView author;
+        TextView content;
     }
 }

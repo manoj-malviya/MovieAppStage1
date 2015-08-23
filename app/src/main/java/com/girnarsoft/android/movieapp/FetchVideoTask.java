@@ -12,10 +12,10 @@ import java.util.ArrayList;
 /**
  * Created by User on 8/23/2015.
  */
-public class FetchVideoTask extends AsyncTask<String, Void, ArrayList<Video>>
+public class FetchVideoTask extends AsyncTask<String, Void, DetailActivityFragment.MovieVideoReviews>
 {
-    AsyncTaskListner<ArrayList<Video>> mlistner;
-    public FetchVideoTask(AsyncTaskListner<ArrayList<Video>> listner){
+    AsyncTaskListner<DetailActivityFragment.MovieVideoReviews> mlistner;
+    public FetchVideoTask(AsyncTaskListner<DetailActivityFragment.MovieVideoReviews> listner){
         this.mlistner = listner;
     }
     @Override
@@ -24,14 +24,17 @@ public class FetchVideoTask extends AsyncTask<String, Void, ArrayList<Video>>
     }
 
     @Override
-    protected ArrayList<Video> doInBackground(String... params){
+    protected DetailActivityFragment.MovieVideoReviews doInBackground(String... params){
         int movieId = Integer.parseInt(params[0]);
         //try{Thread.sleep(10000);}catch (Exception e) {}
-        return TMDBService.getInstance().getVideos(movieId);
+        DetailActivityFragment.MovieVideoReviews data = new DetailActivityFragment.MovieVideoReviews();
+        data.videos = TMDBService.getInstance().getVideos(movieId);
+        data.reviews = TMDBService.getInstance().getReviews(movieId);
+        return data;
     }
 
     @Override
-    protected void onPostExecute(ArrayList<Video> videos) {
-        mlistner.onTaskFinished(videos);
+    protected void onPostExecute(DetailActivityFragment.MovieVideoReviews data) {
+        mlistner.onTaskFinished(data);
     }
 }

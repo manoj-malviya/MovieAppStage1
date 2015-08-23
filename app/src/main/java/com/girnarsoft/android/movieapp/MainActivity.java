@@ -80,10 +80,10 @@ public class MainActivity extends ActionBarActivity implements MovieListItemClic
     }
 
     @Override
-    public void onItemSelected(Uri uri) {
+    public void onItemSelected(Movie movie) {
         if(mTwoPane) {
 
-            DetailActivityFragment detail = DetailActivityFragment.getInstance(uri);
+            DetailActivityFragment detail = DetailActivityFragment.getInstance(movie);
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, detail)
@@ -91,10 +91,16 @@ public class MainActivity extends ActionBarActivity implements MovieListItemClic
 
         } else {
 
-            Intent intent = new Intent(this, DetailActivity.class)
-                    .setData(uri);
+            Intent detailIntent = new Intent(this, DetailActivity.class);
+//            detailIntent.putExtra(Constants.MOVIE_ID, movie.id);
+//            detailIntent.putExtra(Constants.MOVIE_NAME, movie.name);
+//            detailIntent.putExtra(Constants.MOVIE_IMAGE, movie.image);
+//            detailIntent.putExtra(Constants.MOVIE_OVERVIEW, movie.overview);
+//            detailIntent.putExtra(Constants.MOVIE_RELEASE_DATE, movie.releaseDate);
+//            detailIntent.putExtra(Constants.MOVIE_RATING, movie.rating);
+            detailIntent.putExtra("movie", movie);
 
-            startActivity(intent);
+            startActivity(detailIntent);
         }
     }
 }

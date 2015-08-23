@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.girnarsoft.android.tmdb.Movie;
+
 
 public class DetailActivity extends ActionBarActivity {
 
@@ -15,9 +17,10 @@ public class DetailActivity extends ActionBarActivity {
         setContentView(R.layout.activity_detail);
 
         if(savedInstanceState == null) {
-            Uri uri = (Uri) getIntent().getData();
 
-            DetailActivityFragment detail = DetailActivityFragment.getInstance(uri);
+            Movie movie = getIntent().getParcelableExtra("movie");
+
+            DetailActivityFragment detail = DetailActivityFragment.getInstance(movie);
 
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.movie_detail_container, detail)

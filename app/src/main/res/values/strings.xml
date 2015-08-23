@@ -7,13 +7,16 @@
     <string name="pref_sort_title">Sort Preference</string>
     <string name="pref_sort_key">sort preference</string>
     <string name="pref_sort_default">popularity.desc</string>
+    <string name="pref_favourites">favourites</string>
     <string-array name="pref_sort_entries">
         <item>Most Popular</item>
         <item>Highest Rated</item>
+        <item>Favourites</item>
     </string-array>
     <string-array name="pref_sort_values">
         <item>popularity.desc</item>
         <item>vote_count.desc</item>
+        <item>favourites</item>
     </string-array>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="label_rating">Rating: </string>

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.girnarsoft.android.data.MovieContract;
 import com.girnarsoft.android.tmdb.AsyncTaskListner;
@@ -39,18 +40,26 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
     public static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry._ID,
             MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-            MovieContract.MovieEntry.COLUMN_IMAGE
+            MovieContract.MovieEntry.COLUMN_NAME,
+            MovieContract.MovieEntry.COLUMN_IMAGE,
+            MovieContract.MovieEntry.COLUMN_OVERVIEW,
+            MovieContract.MovieEntry.COLUMN_RATING,
+            MovieContract.MovieEntry.COLUMN_RELEASEDATE
     };
 
     public static final int COL_ID = 0;
     public static final int COL_MOVIE_ID = 1;
-    public static final int COL_IMAGE = 2;
+    public static final int COL_NAME = 2;
+    public static final int COL_IMAGE = 3;
+    public static final int COL_OVERVIEW = 4;
+    public static final int COL_RATING = 5;
+    public static final int COL_RELEASEDATE = 6;
 
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setRetainInstance(true);
-//    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,30 +67,26 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-//        movies = new ArrayList<Movie>();
-//        if (savedInstanceState == null || !savedInstanceState.containsKey(KEY)) {
-//            retrieveMovies();
-//        } else {
-//            movies = savedInstanceState.getParcelableArrayList(KEY);
-//        }
+        movies = new ArrayList<Movie>();
+        if(savedInstanceState == null || !savedInstanceState.containsKey(KEY)) {
+            retrieveMovies();
+        } else {
+            movies = savedInstanceState.getParcelableArrayList(KEY);
+        }
 
         movieGrid = (GridView) rootView.findViewById(R.id.movie_grid);
 
-        adapter = new MovieAdapter(getActivity(), null, 0);
+        adapter = new MovieAdapter(getActivity(), R.layout.movie_grid_item, movies);
         movieGrid.setAdapter(adapter);
 
         movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-
-                long movieId = cursor.getLong(COL_MOVIE_ID);
-
-                Uri uri = MovieContract.MovieEntry.buildMovieUri(movieId);
+                Movie movie = (Movie) movieGrid.getAdapter().getItem(position);
 
                 MovieListItemClickListener listener = (MovieListItemClickListener) getActivity();
 
-                listener.onItemSelected(uri);
+                listener.onItemSelected(movie);
             }
         });
 
@@ -98,16 +103,28 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
     }
 
     public void onTaskFinished(ArrayList<Movie> newMovies) {
-        if (dialog != null) {
+        adapter.clear();
+        adapter.addAll(newMovies);
+        movies = newMovies;
+        adapter.notifyDataSetChanged();
+        if(dialog != null) {
             dialog.dismiss();
         }
         isTaskRunning = false;
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(movies != null && movies.size()>0) {
+            outState.putParcelableArrayList(KEY, movies);
+        }
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
+        //getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
         // If we are returning here from a screen orientation
         // and the AsyncTask is still working, re-create and display the
         // progress dialog.
@@ -135,7 +152,11 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
             String sortOrder = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
 
-            new FetchMovieTask(this.getActivity(), this).execute(sortOrder);
+            if(sortOrder == getString(R.string.pref_favourites)) {
+                getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+            } else {
+                new FetchMovieTask(this).execute(sortOrder);
+            }
         }
     }
 
@@ -151,18 +172,28 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
         Uri uri = MovieContract.MovieEntry.CONTENT_URI;
 
-        //return new Loader(getActivity(), uri, null, null, null, sortOrder);
         return new android.support.v4.content.CursorLoader(getActivity(), uri, MOVIE_COLUMNS, null, null, null);
     }
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+        if (data != null) {
+            movies.clear();
+            while(data.moveToNext()) {
+                Movie movie = new Movie();
+                movie.name = data.getString(COL_NAME);
+                movie.image = data.getString(COL_IMAGE);
+                movie.overview = data.getString(COL_OVERVIEW);
+                movie.rating = data.getString(COL_RATING);
+                movie.releaseDate = data.getString(COL_RELEASEDATE);
+                movies.add(movie);
+            }
+        } else {
+            Toast.makeText(getActivity(), "No Favourites available...", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
-    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-        adapter.swapCursor(null);
-    }
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {}
 
 }

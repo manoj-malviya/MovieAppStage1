@@ -32,6 +32,7 @@ public class MovieContract {
         public static final String COLUMN_IMAGE = "image";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_RATING = "rating";
+        //public static final String COLUMN_VOTE_COUNT = ""
         public static final String COLUMN_RELEASEDATE = "release_date";
 
         public static String getMovieIdFromUri(Uri uri) {

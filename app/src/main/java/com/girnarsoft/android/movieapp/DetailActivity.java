@@ -1,5 +1,6 @@
 package com.girnarsoft.android.movieapp;
 
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,6 +13,16 @@ public class DetailActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        if(savedInstanceState == null) {
+            Uri uri = (Uri) getIntent().getData();
+
+            DetailActivityFragment detail = DetailActivityFragment.getInstance(uri);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_detail_container, detail)
+                    .commit();
+        }
     }
 
 

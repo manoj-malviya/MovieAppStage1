@@ -58,7 +58,7 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        movies = new ArrayList<Movie>();
+//        movies = new ArrayList<Movie>();
 //        if (savedInstanceState == null || !savedInstanceState.containsKey(KEY)) {
 //            retrieveMovies();
 //        } else {
@@ -73,20 +73,15 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Movie movie = (Movie) movieGrid.getAdapter().getItem(position);
-                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                detailIntent.setAction(Intent.ACTION_SEND);
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
 
-                detailIntent.putExtra(Constants.MOVIE_ID, movie.id);
-                detailIntent.putExtra(Constants.MOVIE_NAME, movie.name);
-                detailIntent.putExtra(Constants.MOVIE_IMAGE, movie.image);
-                detailIntent.putExtra(Constants.MOVIE_OVERVIEW, movie.overview);
-                detailIntent.putExtra(Constants.MOVIE_RELEASE_DATE, movie.releaseDate);
-                detailIntent.putExtra(Constants.MOVIE_RATING, movie.rating);
+                long movieId = cursor.getLong(COL_MOVIE_ID);
 
-                if (detailIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivity(detailIntent);
-                }
+                Uri uri = MovieContract.MovieEntry.buildMovieUri(movieId);
+
+                MovieListItemClickListener listener = (MovieListItemClickListener) getActivity();
+
+                listener.onItemSelected(uri);
             }
         });
 
@@ -108,14 +103,6 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         }
         isTaskRunning = false;
     }
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        if (movies != null && movies.size() > 0) {
-//            outState.putParcelableArrayList(KEY, movies);
-//        }
-//    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {

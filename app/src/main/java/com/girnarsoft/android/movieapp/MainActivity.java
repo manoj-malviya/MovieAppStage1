@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements MovieListItemClickListener {
 
     private boolean mTwoPane = false;
 
@@ -76,5 +77,24 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(Uri uri) {
+        if(mTwoPane) {
+
+            DetailActivityFragment detail = DetailActivityFragment.getInstance(uri);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, detail)
+                    .commit();
+
+        } else {
+
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .setData(uri);
+
+            startActivity(intent);
+        }
     }
 }

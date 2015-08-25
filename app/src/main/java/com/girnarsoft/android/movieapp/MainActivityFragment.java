@@ -26,7 +26,7 @@ import com.girnarsoft.android.tmdb.MovieAdapter;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class MainActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Movie>>, SharedPreferences.OnSharedPreferenceChangeListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivityFragment extends Fragment implements AsyncTaskListner<ArrayList<Movie>>, LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String KEY = "key";
 
@@ -85,13 +85,13 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Movie movie = (Movie) movieGrid.getAdapter().getItem(position);
 
-                MovieListItemClickListener listener = (MovieListItemClickListener) getActivity();
+                Callbacks listener = (Callbacks) getActivity();
 
                 listener.onItemSelected(movie);
             }
         });
 
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+        //PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
 
         return rootView;
     }
@@ -109,6 +109,12 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         movies = newMovies;
         adapter.notifyDataSetChanged();
 
+        //intimate parent activity that movie list changed
+//        if(movies.size() > 0) {
+//            Callbacks listener = (Callbacks) getActivity();
+//            listener.onListRefreshed(movies.get(0));
+//        }
+
         if(dialog != null) {
             dialog.dismiss();
         }
@@ -125,9 +131,6 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        if(movies.size() == 0) {
-            retrieveMovies();
-        }
         //getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
         // If we are returning here from a screen orientation
         // and the AsyncTask is still working, re-create and display the
@@ -152,6 +155,10 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         super.onDetach();
     }
 
+    public void onSortChanged(){
+        retrieveMovies();
+    }
+
     private void retrieveMovies() {
         if (!isTaskRunning) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -170,10 +177,10 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         }
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        retrieveMovies();
-    }
+//    @Override
+//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//        retrieveMovies();
+//    }
 
     //Loader callbacks
 
@@ -208,4 +215,8 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {}
 
+    public interface Callbacks {
+        public void onItemSelected(Movie movie);
+        public void onListRefreshed(Movie movie);
+    }
 }

@@ -29,10 +29,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity implements MovieListItemClickListener {
+public class MainActivity extends ActionBarActivity implements MainActivityFragment.Callbacks {
 
     private boolean mTwoPane = false;
     private static final String DETAILFRAGEMENT_TAG = "DFTAG";
+    private String mSortSetting = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,21 @@ public class MainActivity extends ActionBarActivity implements MovieListItemClic
         } else {
             mTwoPane = false;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String sortOrder = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
+
+        if(!sortOrder.equalsIgnoreCase(mSortSetting)){
+            MainActivityFragment ff = (MainActivityFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_movies_list);
+            if ( null != ff ) {
+                ff.onSortChanged();
+            }
+        }
+
+        super.onResume();
     }
 
     @Override
@@ -81,6 +97,8 @@ public class MainActivity extends ActionBarActivity implements MovieListItemClic
         return super.onOptionsItemSelected(item);
     }
 
+    //MainActivityFragement's callbacks
+
     @Override
     public void onItemSelected(Movie movie) {
         if(mTwoPane) {
@@ -93,16 +111,23 @@ public class MainActivity extends ActionBarActivity implements MovieListItemClic
 
         } else {
 
-            Intent detailIntent = new Intent(this, DetailActivity.class);
-//            detailIntent.putExtra(Constants.MOVIE_ID, movie.id);
-//            detailIntent.putExtra(Constants.MOVIE_NAME, movie.name);
-//            detailIntent.putExtra(Constants.MOVIE_IMAGE, movie.image);
-//            detailIntent.putExtra(Constants.MOVIE_OVERVIEW, movie.overview);
-//            detailIntent.putExtra(Constants.MOVIE_RELEASE_DATE, movie.releaseDate);
-//            detailIntent.putExtra(Constants.MOVIE_RATING, movie.rating);
+            Intent detailIntent = new Intent(this, DetailActivity.class);;
             detailIntent.putExtra("movie", movie);
 
             startActivity(detailIntent);
+        }
+    }
+
+    @Override
+    public void onListRefreshed(Movie movie) {
+        if(mTwoPane) {
+
+            DetailActivityFragment detail = DetailActivityFragment.getInstance(movie);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, detail)
+                    .commit();
+
         }
     }
 }

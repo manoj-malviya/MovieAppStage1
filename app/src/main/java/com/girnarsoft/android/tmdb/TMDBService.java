@@ -85,6 +85,7 @@ public class TMDBService {
         String response = getResponse(endPoint.toString());
 
         try {
+            if(response != null)
               videos = getVideosFromJson(response);
         } catch (JSONException jsonEx) {
             Log.e(ERROR_TAG, jsonEx.getMessage());
@@ -106,7 +107,8 @@ public class TMDBService {
         String response = getResponse(endPoint.toString());
 
         try {
-            reviews = getReviewsFromJson(response);
+            if(response != null)
+                reviews = getReviewsFromJson(response);
         } catch (JSONException jsonEx) {
             Log.e(ERROR_TAG, jsonEx.getMessage());
         }

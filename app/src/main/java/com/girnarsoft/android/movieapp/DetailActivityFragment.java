@@ -5,7 +5,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,21 +39,8 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
 
     private static final int DETAIL_LOADER = 112;
 
-//    private static final String[] MOVIE_COLUMNS = {
-//            MovieContract.MovieEntry._ID,
-//            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
-//            MovieContract.MovieEntry.COLUMN_NAME,
-//            MovieContract.MovieEntry.COLUMN_IMAGE,
-//            MovieContract.MovieEntry.COLUMN_OVERVIEW,
-//            MovieContract.MovieEntry.COLUMN_RATING,
-//            MovieContract.MovieEntry.COLUMN_RELEASEDATE
-//    };
-//
-//    private static final int COL_NAME = 2;
-//    private static final int COL_IMAGE = 3;
-//    private static final int COL_OVERVIEW = 4;
-//    private static final int COL_RATING = 5;
-//    private static final int COL_RELEASEDATE = 6;
+    private static final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+    private static final String SHARE_HASH_TAG = " #MovieApp";
 
     private boolean isTaskRunning = false;
 
@@ -65,6 +58,8 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
 
     private VideoAdapter mVideoAdapter;
     private ReviewRowAdapter mReviewAdapter;
+
+    private MenuItem mShareMenu;
 
     public static DetailActivityFragment getInstance(Movie movie) {
         DetailActivityFragment detail = new DetailActivityFragment();
@@ -85,6 +80,7 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setHasOptionsMenu(true); //show share menu
     }
 
     @Override
@@ -172,6 +168,25 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
         }
     }
 
+    //sharing
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_detail_fragment, menu);
+
+        mShareMenu = menu.findItem(R.id.action_share);
+
+        mShareMenu.setVisible(false);
+    }
+
+    private Intent getShareIntent(String videoKey) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        String url = "http://www.youtube.com/watch?v=" + videoKey;
+        intent.putExtra(Intent.EXTRA_TEXT, url+SHARE_HASH_TAG);
+
+        return intent;
+    }
+
     //video callbacks
 
 
@@ -187,6 +202,15 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
         mVideoAdapter.notifyDataSetChanged();
         if(data.videos.size()>0) {
             mTrailersView.setVisibility(View.VISIBLE);
+
+            ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(mShareMenu);
+            if(provider != null) {
+                provider.setShareIntent(getShareIntent(data.videos.get(0).key));
+                mShareMenu.setVisible(true);
+            } else {
+                Log.e(LOG_TAG, "Shareprovider is empty?");
+            }
+
         } else {
             mTrailersView.setVisibility(View.GONE);
         }

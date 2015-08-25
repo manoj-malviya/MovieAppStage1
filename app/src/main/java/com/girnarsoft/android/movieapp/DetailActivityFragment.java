@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ import com.girnarsoft.android.tmdb.AsyncTaskListner;
 import com.girnarsoft.android.tmdb.Movie;
 import com.girnarsoft.android.tmdb.Review;
 import com.girnarsoft.android.tmdb.ReviewRowAdapter;
+import com.girnarsoft.android.tmdb.Utility;
 import com.girnarsoft.android.tmdb.Video;
 import com.girnarsoft.android.tmdb.VideoAdapter;
 import com.squareup.picasso.Picasso;
@@ -59,6 +61,7 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
     private ListView mVideoListView;
     private TextView mReviewView;
     private ListView mReviewListView;
+    private ImageButton mFavourite;
 
     private VideoAdapter mVideoAdapter;
     private ReviewRowAdapter mReviewAdapter;
@@ -101,6 +104,7 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
         mOverviewView = (TextView) view.findViewById(R.id.detail_overview);
         mReleaseDateView = (TextView) view.findViewById(R.id.detail_release_date);
         mRatingView = (TextView) view.findViewById(R.id.detail_rating);
+        mFavourite = (ImageButton) view.findViewById(R.id.favourite_button);
 
         mTrailersView = (TextView) view.findViewById(R.id.detail_trailers);
         mVideoListView = (ListView) view.findViewById(R.id.video_list_view);
@@ -136,10 +140,36 @@ public class DetailActivityFragment extends Fragment implements AsyncTaskListner
             }
         });
 
-        if(!isTaskRunning)
+        mFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addToFavourites(v);
+            }
+        });
+
+        if(!isTaskRunning && mMovie.id > 0)
             new FetchVideoTask(this).execute(String.valueOf(mMovie.id));
 
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        boolean status = Utility.ifInFavourites(getActivity(), mMovie);
+        if(status){
+            mFavourite.setImageResource(R.drawable.ic_star_black_24dp);
+            mFavourite.setClickable(false);
+        }
+    }
+
+    //favroute button click handler
+    public void addToFavourites(View view) {
+        boolean status = Utility.addToFavourites(getActivity(), mMovie);
+        if(status) {
+            mFavourite.setImageResource(R.drawable.ic_star_black_24dp);
+            mFavourite.setClickable(false);
+        }
     }
 
     //video callbacks

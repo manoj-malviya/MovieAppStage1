@@ -69,7 +69,7 @@ public class MovieProvider extends ContentProvider {
         Cursor cursor;
         switch (match) {
             case MOVIES :
-                cursor = getMovies(projection, sortOrder);
+                cursor = getMovies(projection, selection, selectionArgs, sortOrder);
                 break;
             case MOVIE_DETAIL:
                 cursor = getMovieById(uri, projection);
@@ -202,11 +202,11 @@ public class MovieProvider extends ContentProvider {
                 null);
     }
 
-    private Cursor getMovies(String[] projection, String sortOrder) {
+    private Cursor getMovies(String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         return sMovieQueryBuilder.query(mDbHelper.getReadableDatabase(),
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 sortOrder

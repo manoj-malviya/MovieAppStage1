@@ -70,7 +70,7 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
         movies = new ArrayList<Movie>();
         if(savedInstanceState == null || !savedInstanceState.containsKey(KEY)) {
-            retrieveMovies();
+            //retrieveMovies();
         } else {
             movies = savedInstanceState.getParcelableArrayList(KEY);
         }
@@ -108,6 +108,7 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
         adapter.addAll(newMovies);
         movies = newMovies;
         adapter.notifyDataSetChanged();
+
         if(dialog != null) {
             dialog.dismiss();
         }
@@ -124,7 +125,9 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+        if(movies.size() == 0) {
+            retrieveMovies();
+        }
         //getLoaderManager().initLoader(MOVIE_LOADER, savedInstanceState, this);
         // If we are returning here from a screen orientation
         // and the AsyncTask is still working, re-create and display the
@@ -135,6 +138,8 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
             else
                 dialog.show();
         }
+
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override

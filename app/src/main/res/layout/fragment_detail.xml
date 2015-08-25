@@ -33,6 +33,13 @@
         android:layout_toRightOf="@id/detail_image"
         android:layout_below="@+id/detail_rating"
         android:text="2015-06-09"/>
+    <ImageButton
+        android:id="@+id/favourite_button"
+        android:layout_below="@+id/detail_release_date"
+        android:layout_toRightOf="@+id/detail_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_star_border_black_24dp"/>
     <TextView
         android:id="@+id/detail_overview"
         style="@style/moviedetail_text"

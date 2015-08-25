@@ -32,6 +32,7 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity implements MovieListItemClickListener {
 
     private boolean mTwoPane = false;
+    private static final String DETAILFRAGEMENT_TAG = "DFTAG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +44,9 @@ public class MainActivity extends ActionBarActivity implements MovieListItemClic
             mTwoPane = true;
 
             if(savedInstanceState == null) {
+                DetailActivityFragment detail = DetailActivityFragment.getInstance(new Movie());
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.movie_detail_container, new DetailActivityFragment())
+                        .add(R.id.movie_detail_container, detail, DETAILFRAGEMENT_TAG)
                         .commit();
             }
 

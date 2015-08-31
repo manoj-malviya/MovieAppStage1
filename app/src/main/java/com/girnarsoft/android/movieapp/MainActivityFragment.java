@@ -30,11 +30,13 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
     private final String KEY = "key";
 
+    private String current_sort = "";
+
     private static final int MOVIE_LOADER = 111;
 
     private MovieAdapter adapter;
     private GridView movieGrid;
-    private ArrayList<Movie> movies;
+    private ArrayList<Movie> movies = new ArrayList<Movie>();
     private ProgressDialog dialog;
     private boolean isTaskRunning = false;
 
@@ -68,7 +70,7 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        movies = new ArrayList<Movie>();
+        //movies = new ArrayList<Movie>();
         if(savedInstanceState == null || !savedInstanceState.containsKey(KEY)) {
             //retrieveMovies();
         } else {
@@ -165,15 +167,20 @@ public class MainActivityFragment extends Fragment implements AsyncTaskListner<A
 
             String sortOrder = preferences.getString(getString(R.string.pref_sort_key), getString(R.string.pref_sort_default));
 
-            if(sortOrder.equalsIgnoreCase(getString(R.string.pref_favourites))) {
-                if(getLoaderManager().getLoader(MOVIE_LOADER) == null){
-                    getLoaderManager().initLoader(MOVIE_LOADER, null, this).forceLoad();
-                }else{
-                    getLoaderManager().restartLoader(MOVIE_LOADER, null, this).forceLoad();
+            if(!current_sort.equalsIgnoreCase(sortOrder)) {
+
+                if (sortOrder.equalsIgnoreCase(getString(R.string.pref_favourites))) {
+                    if (getLoaderManager().getLoader(MOVIE_LOADER) == null) {
+                        getLoaderManager().initLoader(MOVIE_LOADER, null, this).forceLoad();
+                    } else {
+                        getLoaderManager().restartLoader(MOVIE_LOADER, null, this).forceLoad();
+                    }
+                } else {
+                    new FetchMovieTask(this).execute(sortOrder);
                 }
-            } else {
-                new FetchMovieTask(this).execute(sortOrder);
             }
+
+            current_sort = sortOrder;
         }
     }
 

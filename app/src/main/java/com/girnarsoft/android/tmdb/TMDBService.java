@@ -37,7 +37,7 @@ public class TMDBService {
     final String AUTHOR = "author";
     final String CONTENT = "content";
 
-    private final String apiKey = "";
+    private final String apiKey = "590e44278fc96621798bcff64fd36990";
     private final String baseUrl = "http://api.themoviedb.org/3";
     private final String ERROR_TAG = TMDBService.class.getSimpleName();
     private final String IMAGE_BASE_URL  = "http://image.tmdb.org/t/p/w185/";
@@ -64,7 +64,8 @@ public class TMDBService {
         String response = getResponse(endPoint.toString());
 
         try {
-            movies = getMovieDataFromJson(response);
+            if(response != null)
+                movies = getMovieDataFromJson(response);
         } catch (JSONException jsonEx) {
             Log.e(ERROR_TAG, jsonEx.getMessage());
         }
